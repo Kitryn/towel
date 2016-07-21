@@ -51,6 +51,8 @@
         var context = canvas.getContext( "2d" );
 
         context.fillStyle = "#FFFFFF";
+        context.strokeStyle = "grey";
+        context.lineWidth = 0.4;
         
         var towels = [];
         
@@ -171,6 +173,7 @@
                 context.lineTo(point.x, point.y);
                 
                 context.fill();
+                context.stroke();
                 
                 recursiveDraw(point.attachedPoints[0]);
             };
@@ -228,9 +231,20 @@
             var towel = new Towel(x, y, Math.random() * 16 - 8, - Math.random() * 12)
         };
         
+        function onMouseMove (event) {
+            event.preventDefault();
+			throwTowel( event.clientX, event.clientY );
+        };
+        
         document.addEventListener("mousedown", function (event) {
             event.preventDefault();
+            document.addEventListener("mousemove", onMouseMove, false );
+        });
+        
+        document.addEventListener("mouseup", function (event) {
+            event.preventDefault();
             throwTowel(event.clientX, event.clientY);
+            document.removeEventListener("mousemove", onMouseMove, false );
         });
         
         (function update() {
