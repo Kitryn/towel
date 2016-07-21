@@ -39,8 +39,8 @@
         sprites.push(leftTowel);
         sprites.push(rightTowel);
         
-        var spriteWidth = leftTowel.naturalWidth;
-        var spriteHeight = leftTowel.naturalHeight;
+        var spriteWidth = 150;
+        var spriteHeight = 150;
         
         var canvas = document.createElement( "canvas" );
         canvas.style.position = "absolute";
@@ -158,9 +158,6 @@
                 
                 if (point.attachedPoints.length === 0) {
                     // Base case
-                    context.lineTo(point.x, point.y);
-                    context.lineTo(point.sisterPoint.x, point.sisterPoint.y);
-                    context.fill();
                     return;
                 }
                 
