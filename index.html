@@ -8,15 +8,25 @@
 
         body {
             color: #ffffff;
-            background-color: #008000;
+            background-color: cornflowerblue;
             margin: 0px;
             cursor: pointer;
             overflow: hidden;
         }
-
+        
+        .header {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            font-family: monospace;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        click if ur a towel
+    </div>
     <script>
         var sprites = [];
         
@@ -29,6 +39,8 @@
         sprites.push(leftTowel);
         sprites.push(rightTowel);
         
+        var spriteWidth = leftTowel.naturalWidth;
+        
         var canvas = document.createElement( "canvas" );
         canvas.style.position = "absolute";
         canvas.width = window.innerWidth;
@@ -38,8 +50,10 @@
         var context = canvas.getContext( "2d" );
         
         var towels = [];
+        var points = [];
         
         var gravity = 0.75;
+        var spacing = 10;
         
         // Classical inheritance example from http://eli.thegreenplace.net/2013/10/22/classical-inheritance-in-javascript-es5
         
@@ -73,7 +87,8 @@
             // Initialize subclass own members
             if (this.vx === 0) this.vx = 2;
             
-            this.points = [];
+            this.prevLeft = new PaperPoint(this.x, this.y, 0, 0);
+            this.prevRight = new PaperPoint(this.x + spriteWidth, this.y, 0, 0);
             
         };
         
@@ -89,6 +104,27 @@
             context.drawImage(sprites[direction], this.x, this.y);
         };
         
+        Towel.prototype.update = function () {
+            Particle.prototype.update.call(this)
+            
+            if (this.x > canvas.width || this.x < (0 - spriteWidth) || this.y > canvas.height) {
+                towels.splice(towels.indexOf(this), 1);
+            }
+            
+            // Calculate distance between top left corner and left point
+            var dx = this.x - this.prevLeft.x;
+            var dy = this.y - this.prevLeft.y;
+            var leftDist = Math.sqrt(dx * dx + dy * dy);
+            
+            var dx = (this.x + 150) - this.prevRight.x;
+            var dy = this.y - this.prevRight.y;
+            var rightDist = Math.sqrt(dx * dx + dy * dy);
+            
+            // If any point is greater than the spacing, generate a new point
+            if (leftDist > spacing) {
+                
+            }
+        };
         
         // ------ PaperPoint subclass ------
         function PaperPoint (x, y, vx, vy) {
