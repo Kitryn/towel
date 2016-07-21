@@ -121,8 +121,6 @@
         
         Towel.prototype.update = function () {
             
-            console.log("still going on")
-            
             if (this.x > (canvas.width + canvasexpand) || this.x < (0 - canvasexpand) || this.y > (canvas.height + canvasexpand)) {
                 towels.splice(towels.indexOf(this), 1);
             }
@@ -160,7 +158,7 @@
                 
                 if (point.attachedPoints.length === 0) {
                     // Base case
-                    context.lineTo(point.x, point.y)
+                    context.lineTo(point.x, point.y);
                     context.lineTo(point.sisterPoint.x, point.sisterPoint.y);
                     
                     return;
@@ -175,7 +173,7 @@
                 context.lineTo(point.attachedPoints[0].x, point.attachedPoints[0].y);
                 context.lineTo(point.attachedPoints[0].sisterPoint.x, point.attachedPoints[0].sisterPoint.y);
                 context.lineTo(point.sisterPoint.x, point.sisterPoint.y);
-                context.lineTo(point.x, point.y)
+                context.lineTo(point.x, point.y);
                 
                 //context.stroke();
                 context.fill();
