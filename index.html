@@ -222,7 +222,7 @@
         };
         
         PaperPoint.prototype.draw = function () {
-            
+            context.drawImage(sprites[0], this.x, this.y)
         };
         
         // ------ Mouse listeners ------
@@ -230,7 +230,6 @@
         function throwTowel (x, y) {
             var towel = new Towel(x, y, Math.random() * 16 - 8, - Math.random() * 12)
         };
-        
         
         document.addEventListener("mousedown", function (event) {
             event.preventDefault();
