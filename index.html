@@ -59,6 +59,7 @@
         
         var gravity = 0.75;
         var spacing = 20;
+        var canvasexpand = 1000;
         
         // Classical inheritance example from http://eli.thegreenplace.net/2013/10/22/classical-inheritance-in-javascript-es5
         
@@ -122,7 +123,7 @@
             
             console.log("still going on")
             
-            if (this.x > canvas.width || this.x < (0 - spriteWidth) || this.y > canvas.height) {
+            if (this.x > (canvas.width + canvasexpand) || this.x < (0 - canvasexpand) || this.y > (canvas.height + canvasexpand)) {
                 towels.splice(towels.indexOf(this), 1);
             }
             
@@ -157,10 +158,8 @@
             // Recursive helper
             function recursiveDraw (point) {
                 
-                
                 if (point.attachedPoints.length === 0) {
                     // Base case
-                    
                     context.lineTo(point.x, point.y)
                     context.lineTo(point.sisterPoint.x, point.sisterPoint.y);
                     
@@ -171,8 +170,6 @@
                     // Base case 2: start of roll
                     return;
                 }
-                
-                
                 
                 context.moveTo(point.x, point.y);
                 context.lineTo(point.attachedPoints[0].x, point.attachedPoints[0].y);
