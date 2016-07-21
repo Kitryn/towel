@@ -169,6 +169,8 @@
                     return;
                 }
                 
+                context.drawImage(sprites[0], point.x, point.y)
+                
                 context.moveTo(point.x, point.y);
                 context.lineTo(point.attachedPoints[0].x, point.attachedPoints[0].y);
                 context.lineTo(point.attachedPoints[0].sisterPoint.x, point.attachedPoints[0].sisterPoint.y);
@@ -182,7 +184,7 @@
             }
             
             context.beginPath();
-            context.moveTo(this.x, this.y);
+            //context.moveTo(this.x, this.y);
             recursiveDraw(this.prevLeft);
             //context.closePath();
             
