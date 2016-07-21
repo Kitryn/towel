@@ -40,6 +40,7 @@
         sprites.push(rightTowel);
         
         var spriteWidth = leftTowel.naturalWidth;
+        var spriteHeight = leftTowel.naturalHeight;
         
         var canvas = document.createElement( "canvas" );
         canvas.style.position = "absolute";
@@ -49,11 +50,15 @@
 
         var context = canvas.getContext( "2d" );
         
+        context.strokeStyle = "#000000";
+        context.fillStyle = "#FFFFFF";
+        context.lineWidth = 1.0;
+        
         var towels = [];
         var points = [];
         
         var gravity = 0.75;
-        var spacing = 10;
+        var spacing = 20;
         
         // Classical inheritance example from http://eli.thegreenplace.net/2013/10/22/classical-inheritance-in-javascript-es5
         
@@ -84,12 +89,21 @@
             // Call constructor of superclass
             Particle.call(this, x, y, vx, vy, 1);
             
+            // Add to global towel list
+            towels.push(this);
+            
             // Initialize subclass own members
             if (this.vx === 0) this.vx = 2;
             
             this.prevLeft = new PaperPoint(this.x, this.y, 0, 0);
             this.prevRight = new PaperPoint(this.x + spriteWidth, this.y, 0, 0);
             
+            // Attach in a clockwise manner
+            //this.prevLeft.attach(this.prevRight);
+            
+            // Attach sister point
+            this.prevLeft.attachSister(this.prevRight);
+            this.prevRight.attachSister(this.prevLeft);
         };
         
         // Towel derives from Particle
@@ -105,37 +119,96 @@
         };
         
         Towel.prototype.update = function () {
-            Particle.prototype.update.call(this)
+            
+            console.log("still going on")
             
             if (this.x > canvas.width || this.x < (0 - spriteWidth) || this.y > canvas.height) {
                 towels.splice(towels.indexOf(this), 1);
             }
+            
             
             // Calculate distance between top left corner and left point
             var dx = this.x - this.prevLeft.x;
             var dy = this.y - this.prevLeft.y;
             var leftDist = Math.sqrt(dx * dx + dy * dy);
             
-            var dx = (this.x + 150) - this.prevRight.x;
+            var dx = (this.x + spriteWidth) - this.prevRight.x;
             var dy = this.y - this.prevRight.y;
             var rightDist = Math.sqrt(dx * dx + dy * dy);
             
             // If any point is greater than the spacing, generate a new point
-            if (leftDist > spacing) {
+            if (leftDist > spacing || rightDist > spacing) {
+                newLeft = new PaperPoint(this.x, this.y, 0, 0);
+                newRight = new PaperPoint(this.x + spriteWidth, this.y, 0, 0)
                 
+                // Attach sister
+                newLeft.attachSister(newRight);
+                newRight.attachSister(newLeft);
+                
+                // Attach in a clockwise manner
+                newLeft.attach(this.prevLeft);
+                this.prevRight.attach(newRight);
+                
+                this.prevLeft = newLeft;
+                this.prevRight = newRight;
             }
+            
+            // Draw the associated points
+            // Recursive helper
+            function recursiveDraw (point) {
+                
+                
+                if (point.attachedPoints.length === 0) {
+                    // Base case
+                    
+                    context.lineTo(point.x, point.y)
+                    context.lineTo(point.sisterPoint.x, point.sisterPoint.y);
+                    
+                    return;
+                }
+                
+                if (point.attachedPoints[0] === point.sisterPoint) {
+                    // Base case 2: start of roll
+                    return;
+                }
+                
+                
+                
+                context.moveTo(point.x, point.y);
+                context.lineTo(point.attachedPoints[0].x, point.attachedPoints[0].y);
+                context.lineTo(point.attachedPoints[0].sisterPoint.x, point.attachedPoints[0].sisterPoint.y);
+                context.lineTo(point.sisterPoint.x, point.sisterPoint.y);
+                context.lineTo(point.x, point.y)
+                
+                //context.stroke();
+                context.fill();
+                
+                recursiveDraw(point.attachedPoints[0]);
+            }
+            
+            context.beginPath();
+            context.moveTo(this.x, this.y);
+            recursiveDraw(this.prevLeft);
+            //context.closePath();
+            
+            
+            Particle.prototype.update.call(this)
         };
         
         // ------ PaperPoint subclass ------
         function PaperPoint (x, y, vx, vy) {
             // Call constructor of superclass
-            Particle.call(this, x, y, vx, vy, 2);
+            Particle.call(this, x, y, vx, vy, 3);
+            
+            // Add to global point list
+            points.push(this);
             
             // Initialize subclass own members
             if (!this.vx) this.vx = 0;
             if (!this.vy) this.vy = 0;
             
             this.attachedPoints = [];
+            this.sisterPoint = null;
         };
         
         // PaperPoint derives from Particle
@@ -147,12 +220,18 @@
             this.attachedPoints.push(point);
         };
         
+        PaperPoint.prototype.attachSister = function (point) {
+            this.sisterPoint = point;
+        };
+        
+        PaperPoint.prototype.draw = function () {
+            
+        };
         
         // ------ Mouse listeners ------
         
         function throwTowel (x, y) {
             var towel = new Towel(x, y, Math.random() * 18 - 9, - Math.random() * 18)
-            towels.push(towel);
         };
         
         
@@ -166,6 +245,10 @@
             
             towels.forEach(function (towel) {
                 towel.update();
+            })
+            
+            points.forEach(function (point) {
+                point.update();
             })
             
             window.requestAnimationFrame(update);
