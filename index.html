@@ -49,17 +49,13 @@
         document.body.appendChild( canvas );
 
         var context = canvas.getContext( "2d" );
-        
-        context.strokeStyle = "#000000";
+
         context.fillStyle = "#FFFFFF";
-        context.lineWidth = 1.0;
         
         var towels = [];
-        var points = [];
         
         var gravity = 0.75;
         var spacing = 20;
-        var canvasexpand = 1000;
         
         // Classical inheritance example from http://eli.thegreenplace.net/2013/10/22/classical-inheritance-in-javascript-es5
         
@@ -93,14 +89,16 @@
             // Add to global towel list
             towels.push(this);
             
+            this.points = [];
+            this.clear = true;
+            
             // Initialize subclass own members
             if (this.vx === 0) this.vx = 2;
             
             this.prevLeft = new PaperPoint(this.x, this.y, 0, 0);
+            this.points.push(this.prevLeft);
             this.prevRight = new PaperPoint(this.x + spriteWidth, this.y, 0, 0);
-            
-            // Attach in a clockwise manner
-            //this.prevLeft.attach(this.prevRight);
+            this.points.push(this.prevRight);
             
             // Attach sister point
             this.prevLeft.attachSister(this.prevRight);
@@ -121,11 +119,6 @@
         
         Towel.prototype.update = function () {
             
-            if (this.x > (canvas.width + canvasexpand) || this.x < (0 - canvasexpand) || this.y > (canvas.height + canvasexpand)) {
-                towels.splice(towels.indexOf(this), 1);
-            }
-            
-            
             // Calculate distance between top left corner and left point
             var dx = this.x - this.prevLeft.x;
             var dy = this.y - this.prevLeft.y;
@@ -143,6 +136,10 @@
                 // Attach sister
                 newLeft.attachSister(newRight);
                 newRight.attachSister(newLeft);
+                
+                // Add to point list
+                this.points.push(newLeft);
+                this.points.push(newRight);
                 
                 // Attach in a clockwise manner
                 newLeft.attach(this.prevLeft);
@@ -176,21 +173,31 @@
                 context.fill();
                 
                 recursiveDraw(point.attachedPoints[0]);
-            }
-            
+            };
 
             recursiveDraw(this.prevLeft);
-
+            
+            this.clear = true;
+            
+            this.points.forEach(function (point) {
+                if (point.y < canvas.height) {
+                    this.clear = false;
+                }
+                
+                point.update();
+            }, this);
+            
             Particle.prototype.update.call(this)
+            
+            // Remove from towels list if all particles are below y value of canvasheight
+            if (this.clear) towels.splice(towels.indexOf(this), 1);
+            
         };
         
         // ------ PaperPoint subclass ------
         function PaperPoint (x, y, vx, vy) {
             // Call constructor of superclass
             Particle.call(this, x, y, vx, vy, 3);
-            
-            // Add to global point list
-            points.push(this);
             
             // Initialize subclass own members
             if (!this.vx) this.vx = 0;
@@ -231,10 +238,6 @@
             
             towels.forEach(function (towel) {
                 towel.update();
-            })
-            
-            points.forEach(function (point) {
-                point.update();
             })
             
             window.requestAnimationFrame(update);
