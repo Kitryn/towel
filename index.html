@@ -138,7 +138,7 @@
             // If any point is greater than the spacing, generate a new point
             if (leftDist > spacing || rightDist > spacing) {
                 newLeft = new PaperPoint(this.x, this.y, 0, 0);
-                newRight = new PaperPoint(this.x + spriteWidth, this.y, 0, 0)
+                newRight = new PaperPoint(this.x + spriteWidth, this.y, 0, 0);
                 
                 // Attach sister
                 newLeft.attachSister(newRight);
@@ -160,7 +160,7 @@
                     // Base case
                     context.lineTo(point.x, point.y);
                     context.lineTo(point.sisterPoint.x, point.sisterPoint.y);
-                    
+                    context.fill();
                     return;
                 }
                 
